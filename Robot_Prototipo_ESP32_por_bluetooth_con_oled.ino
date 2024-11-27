@@ -51,12 +51,41 @@ BluetoothSerial SerialBT;
 #define IN3 25
 #define IN4 33
 
+// Pines de los encoders
+#define ENCODER_A 35
+#define ENCODER_B 34
+
+// Pines de leds
+#define PIN_LED_1 4
+#define PIN_LED_2 2
+
+// Variables globales para los contadores
+volatile long encoderA_count = 0;
+volatile long encoderB_count = 0;
+
+// Funciones de interrupción para los encoders
+void IRAM_ATTR encoderA_ISR() {
+    encoderA_count++;
+}
+
+void IRAM_ATTR encoderB_ISR() {
+    encoderB_count++;
+}
+
 void setup() {
   // Inicializar el Bluetooth
   SerialBT.begin("ESP32_Robot"); // Nombre del dispositivo Bluetooth
   
   // Inicializar comunicacion serie
   Serial.begin(115200);  
+
+  // Configurar pines de los encoders
+    pinMode(ENCODER_A, INPUT);
+    pinMode(ENCODER_B, INPUT);
+
+    // Adjuntar interrupciones a los encoders
+    attachInterrupt(digitalPinToInterrupt(ENCODER_A), encoderA_ISR, RISING);
+    attachInterrupt(digitalPinToInterrupt(ENCODER_B), encoderB_ISR, RISING);
 
 // Iniciar pantalla OLED en la dirección 0x3C
   if (!display.begin(SSD1306_SWITCHCAPVCC, DIRECCION_PANTALLA)) {  // SSD1306_SWITCHCAPVCC: indica que se activa el voltaje de 3,3V interno para la pantalla.
@@ -65,6 +94,10 @@ void setup() {
     #endif
     while (true);
   }
+
+  // Configuración de pines para los led
+  pinMode(PIN_LED_1, OUTPUT);
+  pinMode(PIN_LED_2, OUTPUT);
 
   // Configuración de pines para control de motores como salida
   pinMode(IN1, OUTPUT);
@@ -101,6 +134,12 @@ void loop() {
       case 'S': // Detener
         stopMotors();
         break;
+      case '1': // Detener
+        turnLeftEncoder(10);
+        break;
+      case '2': // Detener
+        turnRightEncoder(10);
+        break;
       default:
         escribirPantalla(false, "Comando no reconocido.");
         break;
@@ -130,6 +169,9 @@ void turnLeft() {
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
+
+  digitalWrite(PIN_LED_1, HIGH);
+  digitalWrite(PIN_LED_2, LOW);
   escribirPantalla(false, "Giro a la izquierda...");
 }
 
@@ -138,6 +180,9 @@ void turnRight() {
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
+
+  digitalWrite(PIN_LED_1, LOW);
+  digitalWrite(PIN_LED_2, HIGH);
   escribirPantalla(false, "Giro a la derecha...");
 }
 
@@ -146,7 +191,47 @@ void stopMotors() {
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, LOW);
+  digitalWrite(PIN_LED_1, LOW);
+  digitalWrite(PIN_LED_2, LOW);
   escribirPantalla(false, "Detenido.");
+}
+
+void turnLeftEncoder(long pulsos) {
+  // Resetear contadores
+    encoderA_count = 0;
+    encoderB_count = 0;
+
+  // Mientras no se alcance el objetivo
+    while (abs(encoderA_count) < pulsos || abs(encoderB_count) < pulsos) {
+      digitalWrite(IN1, HIGH);
+      digitalWrite(IN2, LOW);
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, HIGH);
+
+      digitalWrite(PIN_LED_1, HIGH);
+      digitalWrite(PIN_LED_2, LOW);
+      escribirPantalla(false, "Girando pulsos");
+    }
+    stopMotors();
+}
+
+void turnRightEncoder(long pulsos) {
+  // Resetear contadores
+    encoderA_count = 0;
+    encoderB_count = 0;
+
+  // Mientras no se alcance el objetivo
+    while (abs(encoderA_count) < pulsos || abs(encoderB_count) < pulsos) {
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, HIGH);
+      digitalWrite(IN3, HIGH);
+      digitalWrite(IN4, LOW);
+
+      digitalWrite(PIN_LED_1, LOW);
+      digitalWrite(PIN_LED_2, HIGH);
+      escribirPantalla(false, "Girando pulsos");
+    }
+    stopMotors();
 }
 
 void escribirPantalla(boolean limpiarBuffer, String texto) {
