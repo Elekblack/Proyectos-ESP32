@@ -1,32 +1,15 @@
-/*  **************************************************************************
-    **************************************************************************
-    ultima revicion: Noviembre 2024
-
-    Desarrollado para: ESP32 DEVKIT V1 DOIT de 30 Pines 
-    Componentes: Driver de motor L298N mini
-                 Convertidor Voltaje DC-DC Step-Down LM2596
-                 Display Oled 0.96" SPI 128*64 SSD1306
-
-    **************************************************************************
-    ***************************** Copyright (C) ******************************
-    **************************************************************************
-    * Este código es de uso libre y puede ser copiado, modificado, 
-    * distribuido o utilizado con cualquier propósito,
-    * siempre y cuando se mantenga este aviso de copyright.
-    * 
-    * Este código se entrega "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, 
-    * ya sea expresa o implícita, incluyendo, entre otras, las garantías 
-    * de comerciabilidad, idoneidad para un propósito particular 
-    * y no infracción. 
-    * 
-    * El autor no se hace responsable por cualquier daño, pérdida o 
-    * perjuicio derivado del uso de este código, ya sea directa o 
-    * indirectamente.
-    * 
-    * ¡Úsalo bajo tu propio riesgo y disfruta programando!
-    *
-    **************************************************************************
-*/
+// ------
+// Proyecto: Robot prototipo con ESP32
+// ------
+// Autor: ElekBlack
+// Licencia: MIT
+// ------
+// ultima revicion: Noviembre 2024
+// Desarrollado para: ESP32 DEVKIT V1 DOIT de 30 Pines 
+// Componentes: Driver de motor L298N mini
+//              Convertidor Voltaje DC-DC Step-Down LM2596
+//              Display Oled 0.96" SPI 128*64 SSD1306
+// ------
 
 #include "BluetoothSerial.h"  // Biblioteca para comunicacion Bluetooth
 #include <Wire.h>             // Biblioteca para comunicacion I2C
